@@ -6,7 +6,9 @@ public class Main {
 
         // ThreadPriorityAndStates.threadPriority();
 
-        ThreadPriorityAndStates.threadStates();
+        // ThreadPriorityAndStates.threadStates();
+
+        DaemonAndUserThreads.daemonThreads();
 
     }
 
