@@ -1,4 +1,4 @@
-package org.example;
+package org.fundamental;
 
 public class LocalVariablesAndRaceConditions {
 

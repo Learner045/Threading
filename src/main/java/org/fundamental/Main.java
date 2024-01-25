@@ -1,4 +1,6 @@
-package org.example;
+package org.fundamental;
+
+import org.synchronization.SynchronizationInAction;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -15,7 +17,9 @@ public class Main {
 
         // RaceConditionInAction.raceConditionInAction();
 
-        ParallelTextFileProcessingTry.parallelprocess();
+        // ParallelTextFileProcessingTry.parallelprocess();
+
+        SynchronizationInAction.raceConditionInAction();
 
     }
 
