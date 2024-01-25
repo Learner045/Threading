@@ -1,4 +1,4 @@
-package org.example;
+package org.fundamental;
 
 import java.io.BufferedWriter;
 import java.io.File;
