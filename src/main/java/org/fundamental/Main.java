@@ -1,5 +1,6 @@
 package org.fundamental;
 
+import org.synchronization.ProducerConsumerV1;
 import org.synchronization.SynchronizationInAction;
 
 public class Main {
@@ -19,7 +20,9 @@ public class Main {
 
         // ParallelTextFileProcessingTry.parallelprocess();
 
-        SynchronizationInAction.raceConditionInAction();
+        // SynchronizationInAction.raceConditionInAction();
+
+        ProducerConsumerV1.producerConsumerProblem();
 
     }
 
