@@ -1,8 +1,6 @@
 package org.fundamental;
 
-import org.synchronization.LocksWithParallelVectorSum;
-import org.synchronization.ProducerConsumerV1;
-import org.synchronization.SynchronizationInAction;
+import org.synchronization.*;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -25,7 +23,10 @@ public class Main {
 
         // ProducerConsumerV1.producerConsumerProblem();
 
-        LocksWithParallelVectorSum.parallelVectorSum();
+        // LocksWithParallelVectorSum.parallelVectorSum();
+
+        ReadWriteLocks.readWriteLock();
+
 
     }
 
