@@ -1,5 +1,6 @@
 package org.fundamental;
 
+import org.synchronization.LocksWithParallelVectorSum;
 import org.synchronization.ProducerConsumerV1;
 import org.synchronization.SynchronizationInAction;
 
@@ -22,7 +23,9 @@ public class Main {
 
         // SynchronizationInAction.raceConditionInAction();
 
-        ProducerConsumerV1.producerConsumerProblem();
+        // ProducerConsumerV1.producerConsumerProblem();
+
+        LocksWithParallelVectorSum.parallelVectorSum();
 
     }
 
