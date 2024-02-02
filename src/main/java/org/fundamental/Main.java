@@ -1,6 +1,7 @@
 package org.fundamental;
 
-import org.synchronization.*;
+import org.synchronizationTwo.ParallelArrayProcessingWithPhasersSolution;
+import org.synchronizationTwo.ParallelArrayProcessingWithPhasersTry1;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -25,7 +26,17 @@ public class Main {
 
         // LocksWithParallelVectorSum.parallelVectorSum();
 
-        ReadWriteLocks.readWriteLock();
+        // ReadWriteLocks.readWriteLock();
+
+        // Semaphores.semaphores();
+
+        // ParallelArraySearchWithCountdownLatch.parallelArraySearch();
+
+        // MatrixWithCyclicBarrier.cyclicBarrier();
+
+        // ParallelArrayProcessingWithPhasersTry1.parallelProcessing();
+
+        ParallelArrayProcessingWithPhasersSolution.parallelProcessing();
 
 
     }
