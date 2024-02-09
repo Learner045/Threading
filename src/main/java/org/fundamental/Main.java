@@ -1,5 +1,6 @@
 package org.fundamental;
 
+import org.synchronizationTwo.MapReduce;
 import org.synchronizationTwo.ParallelArrayProcessingWithPhasersSolution;
 import org.synchronizationTwo.ParallelArrayProcessingWithPhasersTry1;
 
@@ -36,8 +37,9 @@ public class Main {
 
         // ParallelArrayProcessingWithPhasersTry1.parallelProcessing();
 
-        ParallelArrayProcessingWithPhasersSolution.parallelProcessing();
+        // ParallelArrayProcessingWithPhasersSolution.parallelProcessing();
 
+        MapReduce.mapreduce();
 
     }
 
