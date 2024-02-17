@@ -52,6 +52,7 @@ public class MatrixWithCyclicBarrier {
         @Override
         public void run() {
             int sum=0;
+            // We start with updating row 1
             for(int i=1; i<rows; i++) {
 
                 for(int j=0; j<columns; j++){ // calculating sum for previous row
@@ -60,7 +61,7 @@ public class MatrixWithCyclicBarrier {
 
                 arr[i][columnId] += sum;
                 try {
-                    cyclicBarrier.await();
+                    cyclicBarrier.await(); // All threads must update this row before they move on to the next row.
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (BrokenBarrierException e) {
