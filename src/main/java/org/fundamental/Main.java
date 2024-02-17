@@ -1,11 +1,15 @@
 package org.fundamental;
 
+import org.reusability.ForkJoin;
+import org.reusability.ThreadReusability;
 import org.synchronizationTwo.MapReduce;
 import org.synchronizationTwo.ParallelArrayProcessingWithPhasersSolution;
 import org.synchronizationTwo.ParallelArrayProcessingWithPhasersTry1;
 
+import java.util.concurrent.ExecutionException;
+
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         // ThreadCreation.createThreads();
 
         // ThreadPriorityAndStates.threadPriority();
@@ -39,7 +43,11 @@ public class Main {
 
         // ParallelArrayProcessingWithPhasersSolution.parallelProcessing();
 
-        MapReduce.mapreduce();
+        // MapReduce.mapreduce();
+
+        // ThreadReusability.reusability();
+
+        ForkJoin.forkJoin();
 
     }
 
