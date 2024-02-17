@@ -1,5 +1,6 @@
 package org.fundamental;
 
+import org.parallelAlgorithms.QuickSort;
 import org.reusability.ForkJoin;
 import org.reusability.ThreadReusability;
 import org.synchronizationTwo.MapReduce;
@@ -47,7 +48,9 @@ public class Main {
 
         // ThreadReusability.reusability();
 
-        ForkJoin.forkJoin();
+        // ForkJoin.forkJoin();
+
+        QuickSort.applyQuickSort();
 
     }
 
