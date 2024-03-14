@@ -1,5 +1,7 @@
 package org.fundamental;
 
+import org.famousProblems.DiningPhilosophers;
+import org.famousProblems.ReaderWritersProblem;
 import org.parallelAlgorithms.QuickSort;
 import org.reusability.ForkJoin;
 import org.reusability.ThreadReusability;
@@ -50,7 +52,11 @@ public class Main {
 
         // ForkJoin.forkJoin();
 
-        QuickSort.applyQuickSort();
+        // QuickSort.applyQuickSort();
+
+        // DiningPhilosophers.diningPhilosophers();
+
+        // ReaderWritersProblem.readerWriterProblem();
 
     }
 
