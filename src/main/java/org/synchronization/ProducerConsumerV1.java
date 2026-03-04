@@ -3,6 +3,7 @@ package org.synchronization;
 import java.util.LinkedList;
 import java.util.Queue;
 
+// CHAPTER 2 
 /**
  * More traditional approach. w
  */
