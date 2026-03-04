@@ -3,6 +3,7 @@ package org.fundamental;
 import java.util.ArrayList;
 import java.util.List;
 
+// CHAPTER 5
 public class RaceConditionInAction {
 
     // global variables or class-level variables, allocated on heap
