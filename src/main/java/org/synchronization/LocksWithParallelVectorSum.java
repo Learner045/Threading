@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+// CHAPTER 3
 public class LocksWithParallelVectorSum {
 
     public static int sum = 0;
