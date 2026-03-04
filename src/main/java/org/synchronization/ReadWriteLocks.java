@@ -6,6 +6,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+// CHAPTER 4
 public class ReadWriteLocks {
 
     private static ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
