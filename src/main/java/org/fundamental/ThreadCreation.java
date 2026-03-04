@@ -1,5 +1,6 @@
 package org.fundamental;
 
+// CHAPTER 1
 public class ThreadCreation {
 
     public static void createThreads() throws InterruptedException{
