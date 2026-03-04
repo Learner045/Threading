@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+// CHAPTER 6 
 /**
  *  Requirements --
  *  1. Periodically scans the ./src/main/resources directory and watches for new files
