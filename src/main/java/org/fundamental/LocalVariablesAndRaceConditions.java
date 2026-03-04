@@ -1,5 +1,6 @@
 package org.fundamental;
 
+// CHAPTER 4
 public class LocalVariablesAndRaceConditions {
 
     // global variables or class-level variables, allocated on heap
