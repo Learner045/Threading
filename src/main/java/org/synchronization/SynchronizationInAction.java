@@ -3,6 +3,7 @@ package org.synchronization;
 import java.util.ArrayList;
 import java.util.List;
 
+// CHAPTER 1
 public class SynchronizationInAction {
 
     // global variables or class-level variables, allocated on heap
