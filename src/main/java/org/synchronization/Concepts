@@ -1,0 +1,53 @@
+Distinction between instance vs static vs local 
+
+class MyThread implements Runnable {
+  int x = 0; // instance field - each new MyThread() gets its OWN copy, not shared
+  static int y=0; // static field - ONE copy, shared across all MyThread instances
+
+  public void run() {
+    int z=0; // local var - lives on this thread's stack, truly thread local
+    x++; // each thread modifies its own x - no race condition, truly thread local
+    y++; // all threads modify the same y - race condition
+    z++; // only this thread touches z - completely safe
+  }
+
+}
+
+
+Wait-Notify
+
+When we call obj.wait(), current thread gets added to the wait set of that object. 
+First it throws the interrupted exception
+It does 2 things - it suspends the current execution of the thread and releases the lock
+
+After thread gets suspended due to wait, there has to be a way to wake up the suspended thread.
+We can either call obj.notify() or we call interrupt on thread. 
+
+// Thread 1 
+synchronized(obj) {
+  obj.wait() // this will suspend thread 1's execution, so there has to be a way of waking up this thread
+  Sopln()
+}
+
+// Thread 2 
+synchronized(obj) {
+  obj.notify() // notification is perceived at the object level
+  Sopln()
+}
+
+Important, when thread 2 will call notify, thread 1 does not directly start executing from where it left off because thread2 still has lock on the object.
+It just sets the flag that thread 1 can continue execution but thread2 will still need to complete all instructions in its CS. 
+
+obj.notifyAll() will clear the wait set of the object for all threads in the wait set.
+
+
+
+
+
+
+
+
+
+
+
+
