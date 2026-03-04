@@ -1,5 +1,6 @@
 package org.fundamental;
 
+// CHAPTER 2
 public class ThreadPriorityAndStates {
 
     public static void threadPriority() throws  InterruptedException {
