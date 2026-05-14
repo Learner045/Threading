@@ -21,7 +21,7 @@ First it throws the interrupted exception
 It does 2 things - it suspends the current execution of the thread and releases the lock
 
 After thread gets suspended due to wait, there has to be a way to wake up the suspended thread.
-We can either call obj.notify() or we call interrupt on thread. 
+We can either call obj.notify() on the same object or we call interrupt on thread. 
 
 // Thread 1 
 synchronized(obj) {
@@ -40,7 +40,9 @@ It just sets the flag that thread 1 can continue execution but thread2 will stil
 
 obj.notifyAll() will clear the wait set of the object for all threads in the wait set.
 
-
+Note that the wait and notify must be called from within synchronized blocks. In practice, we use notifyAll after any modification of queue to avoid subtle bugs.
+Also, notifyAll does not mean any specific threads, it means Some waiting thread, wake up and re-check your condition.
+That's why we use while loop for checking, not "if condition"
 
 
 
