@@ -45,6 +45,66 @@ Also, notifyAll does not mean any specific threads, it means Some waiting thread
 That's why we use while loop for checking, not "if condition"
 
 
+Using explicit Locks
+
+- we can use a lock object and close it in finally. Each object will have a monitor composed of lock and condition variable.
+- synchronized block is implicitly using a lock that guarantees critical section. 
+- For any thread in CS, we say it is holding the lock, and on unlock it will release the lock. Other threads will be blocked in the lock() call
+- Main impl is Reentrant lock, because a thread can call lock() multiple times. like lockObj.lock(); lockObj.lock();
+- Thread waiting on lock, we can see how many are in the waiting queue using lockObj.getQueueLength()
+- We can also get holdCount() which shows number of times the thre
+
+tryLock
+- obj.lock(), with this thread will block until the lock becomes available, but with obj.tryLock(), the thread will not block. it returns true or false depending on whether the lock is held 
+by another thread and simply continue execution.
+- We also have tryLock with timeout. 
+
+
+Read-Write locks
+- We have bunch of threads only reading values of shared vars, less threads only writing data to shared vars. Allow to give exclusive access to writer threads and
+allow reader threads to read the var.
+- This is when we can use ReadWriteLock rw = new ReentrantReadWriteLock()
+- readLock = rw.readLock(), writeLock = rw.wtireLock()
+- readLock.lock(), writeLock.lock()
+- idea is read lock should be used for read threads, and write lock for write threads.
+- if read threads are trying to acqure the lock, all of them will be able to acquire the lock. But when writer thread is trying to acquire the data, 
+read threads will wait in the lock operation. Writers have priority but they will get the lock only when all readers have given up the lock.
+- We define 2 CS - one for write and one for read
+
+
+This construction here is a spin lock or busy waiting : 
+while (true)
+{
+boolean acquired = readLock.tryLock();
+if (acquired) break;
+else Sopln("Waiting for read lock");
+}
+
+- run loop while continuously trying to get lock, this is different from lockObj.lock() as lock() puts current thread in waiting state 
+and spin lock works keeps current thread on cpu i.e. in runnable state until lock is able to aquired.
+- not recommended to use it for long wait time operation
+
+
+Condition Variables for reentrant locks
+- variables that help us communicate between threads similar to monitors.
+- Condition condition = lock.newCondition() 
+- condition.await(), condition.signal() to be called only inside critical section.
+- await will put thread to sleep and release the lock, similar to wait()
+- signal() thread in await will be release but only happens when thread 2 who is in critical section releases the lock, similar to notify
+- really similar to wait-notify
+- why was this needed then? we can create more conditions on same lock and more complex synchronization scenarios.
+- whereas on object, there's only one monitor on an object.
+
+
+Semaphores
+- Semaphore semaphore = new Semaphore(permits)
+- semaphore.aquire(), semaphore.release()
+- semaphore has limit on num of aquire calls we can make depending on permits, so number of threads that can call aquire depends on permits
+- release will increase the permit
+- with locks, only 1 thread can execute CS. With semaphore, as many as permits num of threads can enter CS
+- with semaphore, aquire and release can be called on different threads unlike locks
+- we can also have negative permits, means we need to first call release methods until we can acquire a permit.
+- we can also have aquire(permit), reelase(permit) meaning one thread will aquire permit num of permits at a time
 
 
 
