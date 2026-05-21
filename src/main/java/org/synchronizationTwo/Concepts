@@ -1,0 +1,55 @@
+CountDownLatch
+
+- A bit like semaphore but specialized, it accepts, a counter
+- CountDownLatch countDownLatch = new CountDownLatch(counter)
+- Provides functionality of decreasing the counter
+- countDownLatch.countDown()
+- countDownLatch.await() - blocks currently executing thread, when count down reaches 0, await will be unblocked
+- mostly used for subproblems executed in parallel, when a sub problem is solved we call countDown marking the fact that 
+that one was solved
+- We don't have any way of increasing the counter once it reaches 0
+- One shot tool
+
+In search a num in array problem, we divide the portions of array to worker threads to search in.
+Once the thread completes the work, we call countDown to denote that this thread has completed searching
+At the end in main thread, we wait for all threads to complete before printing the search posiion by using await()
+Once all threads complete their work, the count down will become 0 and await() will unblock
+At that point we can print results.
+
+The idea behind this concept is, when each sub problem is solved, we count down to indicate that the sub problem was solved.
+One shot problems that can split into multiple problems that can run in parallel.
+
+
+Barriers
+
+- CyclicBarrier cyclicBarrier = new CyclicBarrier(num)
+- As a barrier, it will block the threads so in constructor we provide number of threads
+- cyclicBarrier.await(), after all threads hit the barrier, they will be released by the barrier
+and continue the execution
+- Idea is simple all threads will reach barrier before they are released for execution. 
+- Importantly it can be reused, as the name suggests, it is cyclic in nature and will reset on its own.
+- CyclicBarrier cyclicBarrier = new CyclicBarrier(num, runnable) runnable will be called when barrier is released
+
+We solved a problem where we had a 2d matrix, for each cell, we added all elements of previous row + current cell.
+Each thread was responsible for updating one column. After updating one cell in that column, we would wait for other threads to update their cells.
+Once all threads update, barrier will release and thread will move on to updating the next cell in the column.
+Reason why we would need to wait for each thread to complete is because we want to do previous row sum + current cell 
+
+Essentially,
+Wait until 4 threads call barrier.await().
+Once the 4th thread arrives, release all 4 threads.
+Then reset the barrier so it can be used again.
+
+
+Phasers
+
+
+
+
+
+
+
+
+
+
+
