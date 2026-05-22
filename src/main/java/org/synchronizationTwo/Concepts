@@ -43,6 +43,52 @@ Then reset the barrier so it can be used again.
 
 Phasers
 
+- Phaser phaser = new Phaser()
+- It is a bit like barrier but more flexible. When we create CyclicBarrier, we need to provide the barrier count. 
+- In phaser, it does not require number of barrier threads in its constructor.
+- phaser.register() increments barrier number by 1. Thread can register itself and express that they want to be part of barrier.
+- phaser.arriveAndAwaitAdvance() - blocks untill all registered threads arrive at this method, equivalent of await() in cyclic barrier
+- Each time barrier is released, it increments internal count called phase. phaser.getPhase() gives count. 
+- phaser.waitAdvance(), phaser.bulkRegister(), we can also construct trees of phasers - phaser chaining.
+- phaser.arriveAndDeregister() - thread will deregister from phaser after arriving, num of barrier count will decrease by 1. 
+Thread can decide to not be part of barrier anymore. Non-blocking
+
+Map-reduce like problem where we will have an array where we double each numb (*2) and then sum the entire array
+We will have phase 1 which will double each element, each thread will handle one element
+Phase 2 will have sum by single thread with index 0
+
+
+Exchangers
+
+- Exchaner<String> exchanger = new Exchanger<>();
+- exchange data between 2 threads
+- method String recvd1 = exchanger.exchange("value1"), String recvd2 = exchanger.exchange("value2")
+- thread1 will call exchange and block until other thread reaches the exchange method and then both will exchange value
+- threads act like they reach barrier, but they will also exchange data
+- at any given time, only 2 threads can exchange data
+- we need to make sure that we always have pairs of threads that can reach this method otherwise there will be some threads stuck in waiting
+
+
+Deadlock
+- situation where threads are blocked. 
+- synchronization primitives in non consistent way can also cause this problem
+- Thread.currentThread.join() - grab current thread and wait for it to finish, recommended to use join(timeout)
+
+
+Volatile
+- 2 threads executing on different cpu can access a var on mainmemory, it may take 100 ns for cpu to grab that data from main memory.
+to reduce this tme, there's cache present on cpu chip so var is copied on cpu chip from mainmemory. This access time is 7ns
+- now, shared var on mainmemory and both threads are trying to read that, and there are multiple read oprs, cpu will optimize by storing that
+var on cache to reduce access time. If one thread writes to it, visibility of that write for specific time will be only on cache, it won't be on cpu
+- propogation to main mem wont happen immediately, now if other thread is trying to read that ar, it will see stale data
+- volatile keyword, the read will happen from main memory, write will be stored on main memory. It won't be copied over to cache.
+- to gain consistency, we will lose on performance
+
+
+
+
+
+
 
 
 
