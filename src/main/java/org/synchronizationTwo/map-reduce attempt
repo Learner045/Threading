@@ -1,0 +1,140 @@
+// Online Java Compiler
+// Use this editor to write, compile and run your Java code online
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+class Main {
+    static String words[];
+    static List<KeyValue> mapperOutput;
+    static Lock lock = new ReentrantLock();
+    static CyclicBarrier cyclicBarrier;
+    static Map<String, Integer> reduced;
+    public static void main(String[] args) {
+        System.out.println("Start small. Ship something.");
+        int numOfThreads = 3;
+        String input = "Start small Ship something Hello word hello all hello universe thank you I am Her she is me";
+        
+        mapperOutput = new ArrayList<>();
+        reduced = new HashMap<>();
+        words = input.toLowerCase().split(" ");
+        int len = words.length;
+        
+        int partitions = 3;
+        int window = len/3;
+         cyclicBarrier = new CyclicBarrier(partitions + 1); // +1 for main thread
+        // Map
+        for (int i=0; i<len; i+=window) {
+            System.out.println("Creating mapper thread");
+            Thread mapping = new Thread(new Mapper(i, Math.min(i+window, len)));
+            mapping.start();
+        }
+        
+        
+        // await until all mapping threads complete
+        try {
+            cyclicBarrier.await();
+        } catch(InterruptedException | BrokenBarrierException e) {
+             System.out.println("Mapping threads completed" + e);
+        }
+        
+        // shuffler
+        Collections.sort(mapperOutput, (el1, el2)->el1.key.compareTo(el2.key));
+        System.out.println("Shuffling complete");
+        
+
+        // Reduce
+        for (int i=0; i<len; i+=window) {
+            System.out.println("Creating reducer thread");
+            Thread reduce = new Thread(new Reducer(i, Math.min(i+window, len)));
+            reduce.start();
+        }
+        
+        try {
+            cyclicBarrier.await();
+        } catch(InterruptedException | BrokenBarrierException e) {
+            System.out.println("Reducer threads completed" + e);
+        }
+        // output after reduce
+        System.out.println(reduced);
+        
+    }
+    
+    static class KeyValue {
+        String key;
+        int val;
+        KeyValue(String key, int val) {
+            this.key = key;
+            this.val = val;
+        }
+    }
+    
+    static class Reducer implements Runnable {
+        int low;
+        int high;
+        Reducer(int low, int high) {
+            this.low = low;
+            this.high = high;
+        }
+        
+        public void run() {
+            try {
+                Thread.sleep(500);
+                
+                try {
+                    lock.lock();
+                for (int i=low; i<high; i++) {
+                    KeyValue kv = mapperOutput.get(i);
+                    if (reduced.containsKey(kv.key)) {
+                        reduced.put(kv.key, reduced.get(kv.key)+1);
+                    } else {
+                        reduced.put(kv.key, 1);
+                    }
+                }
+                } finally {
+                    lock.unlock();
+                }
+                
+                 cyclicBarrier.await();
+            } catch(InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            } 
+        }
+    }
+    
+    static class Mapper implements Runnable {
+        int low;
+        int high;
+        List<KeyValue> mappedWords;
+        Mapper(int low, int high) {
+            this.low = low;
+            this.high = high;
+            mappedWords = new ArrayList<>();
+        }
+        
+        public void run() {
+            
+            for(int i=low; i<high; i++) {
+                mappedWords.add(new KeyValue(words[i],1));
+            }
+            
+            try {
+                    
+                Thread.sleep(500);
+                
+                try {
+                lock.lock();
+                mapperOutput.addAll(mappedWords);
+                } finally {
+                    lock.unlock();
+                }
+                
+                cyclicBarrier.await();
+
+            } catch(InterruptedException | BrokenBarrierException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
