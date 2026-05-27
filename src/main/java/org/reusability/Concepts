@@ -1,0 +1,102 @@
+Why we should reuse threads
+
+Say we have a program where we have multiple threads. It reads file from local disk line by line, processes each line
+and writes processed lines in a new file.
+
+For each file, we create a thread and when processing of that file is complete, thread will be destroyed.
+
+Question is, if we have 10,000 files, should we create 10,000 threads?
+
+Lets see what happens when we create one thread from resource perspective.
+
+When we create 1 thread, JVM allocates 1MB Stack Size for that thread. This is configurable as vm arg.
+If we create 10k threads, there will be 1GB of memory allocated only to sustain the stack areas of those threads.
+If we reach this memory boundary, JVM will stop with out of memory exception
+
+We may also hit performance limit due to context switch overhead by the scheduler. Threads will spend more time doing the context switch rather than
+actual work. 
+
+How do we solve this issue ? Process large number of tasks 
+
+Solution is to reuse the threads, we need threads to perform many tasks. Add limited num of threads in our app as per cpu cores and workload type.
+
+They will have to be long running, while loop to wait for work to be submitted.
+Build a way to submit work to the threads, good way to do this is to have a task queue.
+Threads will fetch task from queue and do work. This is fundamental idea of thread pool.
+Thread pool is collection of thread connected to pool to which it will get work to execute.
+
+
+
+ThreadPoolExecutor
+
+- ThreadPoolExecutor tpe = new ThreadPoolExecutor(corePoolSize, maxPoolSize, Timeunit, workqueue(runnables))
+- corePoolSize - num of worker threads 
+- thread pool can expand and shrink based on how much work is in the queue
+- task not returning any results -> tpe.execute(runable) 
+- Future<V> future = tpe.submit(callable) - returns results. Callable has single method call() that returns a generic type
+- future.get() - if result is avail, return it, if not, wait until it has result
+- future.isDone(), future.isCancelled()
+- IMP: Even after executing all the tasks, the thread pool would still continue to wait for other tasks to be added to thread pool as it has 
+user level threads and Java application exits only when all user level threads are destroyed either by interrupted or by terminating execution.
+- So we need to destroy all threads before app can stop. Otherwise app will nto start until you force kill the process.
+- For that, we have tpe.shutdown(), tpe.shutdownNow()
+- shutdown is graceful way of closing - first stop accepting new tasks, execute all the active tasks and all tasks in queue. 
+- shutdownNow is forceful way - stop accepting new task, send interrupt to all worker threads, returns all tasks currently in queue.
+- shutdown will not wait for threads to complete, otherwise use awaitTermination(timeout) 
+- tpe uses lazy execution, if we don't send any task no threads will be created, depending on tasks, it will create the threads. 
+- tpe.prestartAllCoreThreads() - create all threads as per core pool size 
+
+
+Different queue types to use with TPE
+- Blocking Queue - block if full or nothing in queue
+- type of queue will directly impact performance of tp
+- ArrayBlockingQueue - queue backed by array and a blocking queue. It is bounded queue in terms of num of elements that can be added to queue.
+- If we try to add more tasks than the max num of threads can handle, and if queue reaches its capacity, the task will be rejected.
+- unbounded queues - no capacity setup upfront - LinkedBlockingQueue. (capacity is optional else by default it will use int max value)
+- whenever we add tasks, they will always be queued. This may lead to oom exceptions due to too many tasks
+- In high throughput app, we may not want to keep huge num of tasks in memory
+- SynchronousQueue - pass task directly to thread by calling tpe.submit(). If no worker thread avail, it will simply reject task.
+
+
+Handling Exceptions in tpe
+- Lets say a task throws unchecked exception - runtime exception. 
+- 3 ways to handle it - surround the code which can throw the exception with try catch Exception. 
+- Submit returns a future, when we call future.get() it will throw Interrupted or ExecutionException and ExecutionExcepton is a catchall
+for any kind of exception so we can handle that during future.get()
+- Create custom tpe class extends Tpe and override specific method afterExecute(), tpe will call this method for each task executed by worker thread.
+- afterExecute(Runnable r, Throwable t) if t is null that means the task was executed successfully. 
+- if we use submit, exeption is captured in future and won't be avail in afterExecute() and it won't call this method with non-null throwable
+
+
+Future<T> future = tpe.submit(() -> throw new RuntimeException("test"));
+try {
+future.get();
+} catch (ExecutionException e){}
+
+recommended way is to handle it inside runnable where the code executes, best way to debug it. 
+
+
+Managing Rejected Tasks in tpe
+- all worker threads are busy and size of pool has reached max and queue is full
+- one way to handle is surrount submit with try catch and handle rejected exception
+- use overloaded tpe constrcutor that takes a RejectedExecutionHandler and override the method for handling logic
+- there are also some policy available with tpe in constructor
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
