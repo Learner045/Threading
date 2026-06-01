@@ -84,6 +84,29 @@ Managing Rejected Tasks in tpe
 
 
 
+Monitoring thread pool executor performance
+
+- tpe.getPoolSize() - returns num of threads currently in pool
+- tpe.getActiveCount() - num of threads currently executing tasks
+- tpe.getTaskCount() - currently tasks submitted in thread pool
+- tpe.getCompletedTaskCount() - how many tasks were completed to get throughput of the thread pool i.e. completed vs how many submitted
+- you need to log some metric for rejected tasks 
+
+
+ScheduledThreadPoolExecutor
+
+- run tasks after specific period and it extends the ThreadPoolExecutor
+- schedule(runnable/callable, delay) 
+- ScheduledFuture<?> futute = scheduleAtFixedRate(runnable/callable, initialDelay, period, unit) to run it periodically even persion units
+- future.cancel(true);
+- setRemoveOnCancelPolicy() - remove task from queue on cancel
+
+
+
+
+
+
+
 
 
 
