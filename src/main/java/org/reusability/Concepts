@@ -102,6 +102,142 @@ ScheduledThreadPoolExecutor
 - setRemoveOnCancelPolicy() - remove task from queue on cancel
 
 
+ForkJoinPools
+
+ForkJoinPool pool = new ForkJoinPool() - num of threads is Runtime.getRuntime.availableProcessors()
+- num of threads is num of logical processors or it can take num of threads in constructor
+- threads steal tasks from other thread's queue
+- submit()/execute() 
+- Used for CPU intensive workload
+- works with ForkJoinTask interface with RecursiveTask as a concrete implementation
+- 
+
+How TPE works
+Tasks are placed into a shared queue.
+Worker threads pull tasks from the queue.
+A thread executes one task at a time.
+When done, it picks the next task.
+
+ForkJoinPool is designed for divide-and-conquer algorithms.
+
+The key idea:
+Split work into smaller subtasks (fork).
+Execute subtasks in parallel.
+Combine results (join).
+
+Each worker thread has its own deque.
+Worker 1: [A][B][C]
+Worker 2: []
+Worker 3: [D]
+Worker 4: []
+
+If Worker becomes ideal, it steals task from other worker's queue
+
+Best for
+Recursive algorithms
+Parallel computations
+Processing large arrays
+Tree traversal
+MapReduce-like operations
+
+TPE has single central queue, ForkJoinPool each worker has own dequeue
+
+Blocking Operations
+This is where many engineers misuse ForkJoinPool. ForkJoinPool is not ideal for blocking operation.
+For a blocking operation, a thread becomes unavailable and because forkjoinpool has roughly same num of threads as processors,
+blocking can starve the pool. That's why ForkJoinPool is mainly for CPU-bound work.
+
+CompletableFuture CompletableFuture.supplyAsync(...) by default uses ForkJoinPool.commonPool().
+If your task does: supplyAsync(() -> callDatabase()), you may accidentally block ForkJoinPool threads.
+
+For I/O work, it's often better to provide your own executor:
+ExecutorService ioPool =
+    Executors.newFixedThreadPool(50);
+
+CompletableFuture.supplyAsync(
+    () -> callDatabase(),
+    ioPool
+);
+
+ThreadPoolExecutor
+
+"I have N independent tasks. Run them."
+
+ForkJoinPool
+
+"I have one huge task. Keep splitting it until many threads can work on it efficiently."
+
+For your distributed systems work (MemoDB, replication, leader election, networking), you'll almost always reach for ThreadPoolExecutor. 
+ForkJoinPool becomes interesting when you're implementing something like a query engine that parallelizes scans, aggregations, or large data-processing operations.
+
+
+Utility class
+- helps build thread pools with static methods
+- Executors.newFixedThreadPool(num)
+- Executors.newSingleThreadScheduledExecutor()
+- Executors.newCachedThreadPool(num) - synchronous queue, reuse existing worker threads.
+- Executors.newWorkStealingPool()
+
+
+How to properly size a thread pool ?
+
+- num of cores
+- the workload type
+
+Num of cores
+- Lets say we have 4 cpu cores and a thread scheduler responsible for dispatching threads on cpu. Say,
+we have 3 threads and a Task queue which threads can grab task from it.
+- If we have num of threads less than num of CPUs, system will be udner used
+- CPU utilization percantage can help see this
+- On the other hand if we have too many threads, scheduler will be overwhelmed because it has to
+do lot of context switching between threads and its internal DS will grow with num of threads.
+- System spends more time on context switching instead of actual work
+- performance will suffer
+- Another angle is workload type - CPU heavy, task needs CPU to be executed - Math,control flow, encryption algo, search and sort
+- other workload type is i/o heavy or i/o bound - tasks requires external resource to network. Any ops involving n/w,
+Http api access, DB access, Disk access, File/Dir access
+- third type is mixed workload - Both CPU and I/O. 
+
+CPU heavy tasks
+- right size is thread pool should be equal to num of CPU cores
+- workload needs CPU to complete, allocation needs to avoid contention or underusability
+- we increase the probability for a thread to be scheduled on CPU core, increase time a thread runs on cpu
+- don't set too much pressure on the scheduler
+
+I/O heavy tasks
+- 4 threads and all talking to DB. Threads will mostly have to wait for DB to ack the request
+- Threads don't need CPU, they only need DB to respond fast to maximize throughput
+- We can increase threads to get more throughput. We can then take twice as many requests and dispatch them.
+- Bottleneck will be DB layer, num of connections DB supports.
+- Don't oversize threadpools, limit should be on num of inbound connections for external service
+- Num of threads > Num of CPU cores 
+
+Mixed workload
+- can't have a rule of thumb as it depends on the application
+- Split the workloads into multiple thread pools, one per workload-type
+- one pool for encryption, one for api calls, etc and size them differently depending on load
+- Try to get the size of thread-pools empirically
+- Num of threads = (num of cpu cores) * (1 + wait time/service time)
+wait time - time that external service takes to respond back to application
+service time - time for your app to do other processing for that request apart from wait time eg. serializn, deserialization
+
+Eg.
+REST API responds in 30ms
+Processing time is 5ms
+Num of CPU cores = 8
+
+8*(1+30/5) = 56 threads
+bottleneck is REST API itself
+
+Follow the guidelines but do your own testing
+
+
+
+
+
+
+
+
 
 
 
