@@ -1,0 +1,82 @@
+// Online Java Compiler
+// Use this editor to write, compile and run your Java code online
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
+class Main {
+    static Lock[] locks;
+    public static void main(String[] args) throws Exception{
+        System.out.println("Start small. Ship something.");
+        
+        // all philosophers are processes/threads
+        // each fork is a resource lock
+        // each philosopher will think, pick fork, eat and put forks down
+        // they need 2 fork to be able to eat
+        
+        
+        // lets sat we have 5 philosopers and 5 forks numbered 0 to 4
+        
+        // each philosopher will pick fork philosopher num of fork and +1 fork
+        
+        locks = new Lock[5];
+        for (int i=0; i<5; i++) {
+            locks[i] = new ReentrantLock();
+        }
+        List<Thread> threads = new ArrayList<>();
+        for (int i=0; i<5; i++) {
+            Thread thread = new Thread(new Philosopher(i));
+            threads.add(thread);
+            thread.start();
+        }
+        
+        for (Thread t: threads) {
+          t.join();
+        }
+        
+    }
+    
+    static class Philosopher implements Runnable {
+        int num;
+        Philosopher(int num) {
+            this.num = num;
+        }
+        
+        public void run() {
+            while(true) {
+               // exec();
+            }
+        }
+        
+        private void exec() {
+            
+            boolean aquiredFirst = false;
+            boolean aquiredSecond = false;
+            try {
+                
+                Thread.sleep(1000);
+                // we pick right fork first (0) and then left (1)
+                aquiredFirst = locks[num].tryLock();
+                if (aquiredFirst) {
+                    System.out.println("Philosopher " + num + " acquired first");
+                    
+                    aquiredSecond = locks[(num+1)%5].tryLock();
+                    System.out.println("Philosopher " + num + " acquired second");
+                    if (aquiredSecond) {
+                        System.out.println("Philosopher " + num + " eats");
+                    }
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (aquiredFirst) {
+                    locks[num].unlock();
+                }
+                if (aquiredSecond) {
+                    locks[(num+1)%5].unlock();
+                }
+                
+            }
+        }
+    }
+}
