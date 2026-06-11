@@ -1,0 +1,198 @@
+import java.util.*;
+import java.util.concurrent.*;
+
+class Main {
+    static final int CHAIRS = 3;
+
+    static final Semaphore customers = new Semaphore(0);
+    static final Semaphore mutex = new Semaphore(1);
+
+    static final Queue<Customer> waitingRoom = new LinkedList<>();
+
+    public static void main(String[] args) throws InterruptedException {
+        Thread barberThread = new Thread(new Barber());
+        barberThread.start();
+
+        for (int i = 1; i <= 10; i++) {
+            new Thread(new Customer(i)).start();
+            Thread.sleep(300);
+        }
+    }
+
+    static class Customer implements Runnable {
+        final int id;
+
+        // Each customer has their own private semaphore
+        final Semaphore myTurn = new Semaphore(0);
+
+        Customer(int id) {
+            this.id = id;
+        }
+
+        @Override
+        public void run() {
+            try {
+                mutex.acquire();
+
+                if (waitingRoom.size() == CHAIRS) {
+                    System.out.println("Customer " + id + " leaves. No chair.");
+                    mutex.release();
+                    return;
+                }
+
+                waitingRoom.add(this);
+                System.out.println("Customer " + id + " waits.");
+
+                mutex.release();
+
+                // Tell barber one customer is waiting
+                customers.release();
+
+                // Wait until barber specifically calls ME
+                myTurn.acquire();
+
+                System.out.println("Customer " + id + " sits in barber chair.");
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    static class Barber implements Runnable {
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    // Sleep until at least one customer exists
+                    customers.acquire();
+
+                    mutex.acquire();
+
+                    Customer nextCustomer = waitingRoom.poll();
+                    System.out.println("Barber calls customer " + nextCustomer.id);
+
+                    mutex.release();
+
+                    // Wake that exact customer
+                    nextCustomer.myTurn.release();
+
+                    cutHair(nextCustomer.id);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        private void cutHair(int customerId) throws InterruptedException {
+            System.out.println("Cutting hair for customer " + customerId);
+            Thread.sleep(1000);
+            System.out.println("Finished customer " + customerId);
+        }
+    }
+}
+
+
+Simpler version
+
+static final int CHAIRS = 3;
+
+static Semaphore customers = new Semaphore(0);
+static Semaphore barber = new Semaphore(0);
+static Semaphore mutex = new Semaphore(1);
+
+static Queue<Integer> waitingRoom = new LinkedList<>();
+
+static class Customer implements Runnable {
+    private final int id;
+
+    Customer(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public void run() {
+        try {
+            mutex.acquire();
+
+            if (waitingRoom.size() == CHAIRS) {
+                System.out.println("Customer " + id + " leaves. No free chairs.");
+                mutex.release();
+                return;
+            }
+
+            waitingRoom.add(id);
+            System.out.println("Customer " + id + " sits in waiting room.");
+
+            mutex.release();
+
+            // Signal barber that a customer is waiting
+            customers.release();
+
+            // Wait until barber calls me
+            barber.acquire();
+
+            System.out.println("Customer " + id + " getting haircut.");
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+static class Barber implements Runnable {
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+
+                // Sleep until a customer arrives
+                customers.acquire();
+
+                mutex.acquire();
+
+                int customerId = waitingRoom.poll();
+
+                System.out.println(
+                    "Barber invites customer " + customerId
+                );
+
+                mutex.release();
+
+                // Invite exactly one customer
+                barber.release();
+
+                cutHair(customerId);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void cutHair(int customerId)
+            throws InterruptedException {
+
+        System.out.println(
+            "Cutting hair for customer " + customerId
+        );
+
+        Thread.sleep(2000);
+
+        System.out.println(
+            "Finished customer " + customerId
+        );
+    }
+}
+
+public static void main(String[] args) throws Exception {
+
+    Thread barberThread = new Thread(new Barber());
+    barberThread.start();
+
+    for (int i = 1; i <= 10; i++) {
+        new Thread(new Customer(i)).start();
+        Thread.sleep(500);
+    }
+}
+
