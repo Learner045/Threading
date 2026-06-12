@@ -1,0 +1,11 @@
+What's happening inside JVM
+
+
+Code is compiled into byte code. Byte code can run on any machine by JVM. 
+
+JVM has different components like Garbage Collector, JIT Compiler, etc
+
+JVM Profiler are applications that connect to JVM, extract information from JVM. We can look at output and see how application is performing.
+
+JVM Profiler like Visual VM, JProfiler, New Relic, etc.
+
